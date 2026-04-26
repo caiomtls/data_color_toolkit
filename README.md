@@ -1,8 +1,8 @@
 # Data Color Toolkit
 
-A client-side tool for testing and refining color palettes across different types of data visualizations. Built for data analysts, designers, and developers who care about how color choices hold up in real chart contexts.
+Uma ferramenta client-side para testar e refinar paletas de cores em diferentes tipos de visualização de dados. Feita para analistas de dados, designers e desenvolvedores que se preocupam com o comportamento das cores em contextos reais de gráficos.
 
-**[Live Demo →](https://caiorlm.github.io/data-color-toolkit/)**
+**[Demo ao Vivo →](https://caiomtls.github.io/data_color_toolkit/)**
 
 > [English version below](#english-version)
 
@@ -54,8 +54,8 @@ Sem dependências de runtime além do Chart.js. Sem React, sem Vue, sem Tailwind
 ## Começando
 
 ```bash
-git clone https://github.com/caiorlm/data-color-toolkit.git
-cd data-color-toolkit
+git clone https://github.com/caiomtls/data_color_toolkit.git
+cd data_color_toolkit
 npm install
 npm run dev
 ```
@@ -122,7 +122,7 @@ Se você fizer fork ou derivar trabalho deste projeto, mantenha o arquivo `NOTIC
 
 A client-side tool for testing and refining color palettes across different chart types. Built for data analysts, designers, and developers who care about how color choices perform in real visualization contexts.
 
-**[Live Demo →](https://caiorlm.github.io/data-color-toolkit/)**
+**[Live Demo →](https://caiomtls.github.io/data_color_toolkit/)**
 
 ---
 
@@ -172,8 +172,8 @@ No runtime dependencies beyond Chart.js. No React, no Vue, no Tailwind.
 ## Getting Started
 
 ```bash
-git clone https://github.com/caiorlm/data-color-toolkit.git
-cd data-color-toolkit
+git clone https://github.com/caiomtls/data_color_toolkit.git
+cd data_color_toolkit
 npm install
 npm run dev
 ```
