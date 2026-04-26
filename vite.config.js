@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/data-color-toolkit/',
+  base: '/data_color_toolkit/',
   root: '.',
   publicDir: 'public',
   build: {
