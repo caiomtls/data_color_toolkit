@@ -14,10 +14,10 @@ export function renderFooter() {
         ${t('footer.text')}
       </div>
       <div class="footer-links">
-        <a href="https://github.com" target="_blank" rel="noopener" class="footer-link">${t('footer.github')}</a>
-        <a href="#" class="footer-link">${t('footer.docs')}</a>
-        <a href="#" class="footer-link">${t('footer.changelog')}</a>
-        <a href="#" class="footer-link">${t('footer.license')}</a>
+        <a href="https://github.com/caiomtls/data_color_toolkit" target="_blank" rel="noopener" class="footer-link">${t('footer.github')}</a>
+        <a href="https://github.com/caiomtls/data_color_toolkit#readme" target="_blank" rel="noopener" class="footer-link">${t('footer.docs')}</a>
+        <a href="https://github.com/caiomtls/data_color_toolkit/blob/main/CHANGELOG.md" target="_blank" rel="noopener" class="footer-link">${t('footer.changelog')}</a>
+        <a href="https://github.com/caiomtls/data_color_toolkit/blob/main/LICENSE" target="_blank" rel="noopener" class="footer-link">${t('footer.license')}</a>
       </div>
     </div>
   `;
