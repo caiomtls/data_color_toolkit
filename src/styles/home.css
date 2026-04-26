@@ -1,0 +1,133 @@
+/* ============================================
+   Home Page Styles
+   ============================================ */
+
+.home {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-16) var(--space-6);
+}
+
+/* === Hero === */
+.home-hero {
+  text-align: center;
+  margin-bottom: var(--space-16);
+  animation: slideUp 0.5s ease;
+}
+
+.home-hero h1 {
+  font-size: clamp(28px, 4vw, 40px);
+  margin-bottom: var(--space-4);
+  letter-spacing: -0.03em;
+}
+
+.home-hero h1 .accent {
+  background: linear-gradient(135deg, var(--accent), #6D63FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.home-hero p {
+  font-size: clamp(14px, 2vw, 16px);
+  max-width: 520px;
+  margin: 0 auto;
+  color: var(--text-secondary);
+}
+
+/* === Feature Cards === */
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-16);
+}
+
+.home-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-8);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
+.home-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.home-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.home-card:hover::before {
+  opacity: 1;
+}
+
+.home-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  margin-bottom: var(--space-5);
+}
+.home-card-icon .material-icons-outlined {
+  font-size: 24px;
+}
+
+.home-card h3 {
+  margin-bottom: var(--space-2);
+}
+
+.home-card p {
+  font-size: 13px;
+  flex: 1;
+  margin-bottom: var(--space-5);
+}
+
+.home-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+}
+.home-card-action .material-icons-outlined {
+  font-size: 16px;
+  transition: transform var(--transition-fast);
+}
+.home-card:hover .home-card-action .material-icons-outlined {
+  transform: translateX(4px);
+}
+
+/* === Stagger animation === */
+.home-card:nth-child(1) { animation: slideUp 0.5s ease 0.1s both; }
+.home-card:nth-child(2) { animation: slideUp 0.5s ease 0.2s both; }
+.home-card:nth-child(3) { animation: slideUp 0.5s ease 0.3s both; }
+
+@media (max-width: 768px) {
+  .home {
+    padding: var(--space-10) var(--space-4);
+  }
+  .home-cards {
+    grid-template-columns: 1fr;
+  }
+}
