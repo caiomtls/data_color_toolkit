@@ -25,7 +25,10 @@ import {
   Filler,
   Legend,
   Tooltip,
+  PieController,
 } from 'chart.js';
+
+import { MatrixController, MatrixElement } from 'chartjs-chart-matrix';
 
 import ChartjsPluginStacked100 from 'chartjs-plugin-stacked100';
 import { BoxPlotController, BoxAndWiskers } from '@sgratzl/chartjs-chart-boxplot';
@@ -51,17 +54,21 @@ Chart.register(
   Tooltip,
   ChartjsPluginStacked100,
   BoxPlotController,
-  BoxAndWiskers
+  BoxAndWiskers,
+  PieController,
+  MatrixController,
+  MatrixElement
 );
 
 // ─── Chart Type Definitions ─────────────────────────────────────────
-// 14 types organized in 7 categories based on FT Visual Vocabulary
+// 17 types organized in 7 categories based on FT Visual Vocabulary
 // Charts that support H/V orientation toggle
 export const ORIENTATION_SUPPORTED = new Set([
   'grouped-bar',
   'stacked-bar',
   'stacked-bar-100',
   'mixed',
+  'waterfall',
 ]);
 
 export const CHART_TYPES = [
@@ -79,6 +86,13 @@ export const CHART_TYPES = [
     descKey: 'chart.radar.desc',
     category: 'comparison',
     icon: 'radar',
+  },
+  {
+    id: 'waterfall',
+    titleKey: 'chart.waterfall.title',
+    descKey: 'chart.waterfall.desc',
+    category: 'comparison',
+    icon: 'waterfall_chart',
   },
 
   // ── Evolução Temporal ──
@@ -102,6 +116,13 @@ export const CHART_TYPES = [
     descKey: 'chart.mixed.desc',
     category: 'trend',
     icon: 'stacked_line_chart',
+  },
+  {
+    id: 'step-line',
+    titleKey: 'chart.stepLine.title',
+    descKey: 'chart.stepLine.desc',
+    category: 'trend',
+    icon: 'staircase',
   },
 
   // ── Composição ──
@@ -135,6 +156,13 @@ export const CHART_TYPES = [
     category: 'part-to-whole',
     icon: 'donut_large',
   },
+  {
+    id: 'pie',
+    titleKey: 'chart.pie.title',
+    descKey: 'chart.pie.desc',
+    category: 'part-to-whole',
+    icon: 'pie_chart',
+  },
 
   // ── Distribuição ──
   {
@@ -143,6 +171,13 @@ export const CHART_TYPES = [
     descKey: 'chart.box.desc',
     category: 'distribution',
     icon: 'candlestick_chart',
+  },
+  {
+    id: 'heatmap',
+    titleKey: 'chart.heatmap.title',
+    descKey: 'chart.heatmap.desc',
+    category: 'distribution',
+    icon: 'grid_on',
   },
 
   // ── Correlação ──
@@ -192,14 +227,18 @@ export const CATEGORIES = [
 export const CHART_CONTROLS = {
   'grouped-bar':    { cols: [1, 30, 5],  series: [1, 8, 3] },
   'radar':          { cols: [3, 10, 6],  series: [1, 5, 3],  colsLabel: 'testing.axes', seriesLabel: 'testing.profiles' },
+  'waterfall':      { cols: [3, 12, 6],  colsLabel: 'testing.steps' },
   'multi-line':     { cols: [2, 30, 8],  series: [1, 8, 4] },
   'slope':          { cols: [2, 10, 5],  colsLabel: 'testing.dataPoints' },
   'mixed':          { cols: [2, 15, 7] },
+  'step-line':      { cols: [2, 20, 8],  series: [1, 6, 3] },
   'stacked-area':   { cols: [2, 30, 7],  series: [1, 8, 4] },
   'stacked-bar':    { cols: [1, 30, 5],  series: [1, 8, 3] },
   'stacked-bar-100':{ cols: [1, 30, 5],  series: [2, 8, 3] },
   'donut':          { cols: [2, 12, 5],  colsLabel: 'testing.segments' },
+  'pie':            { cols: [2, 12, 5],  colsLabel: 'testing.segments' },
   'box':            { cols: [1, 10, 4],  colsLabel: 'testing.groups' },
+  'heatmap':        { cols: [3, 12, 6],  series: [2, 8, 4],  colsLabel: 'testing.columns', seriesLabel: 'testing.rows' },
   'scatter':        { cols: [10, 100, 30], series: [1, 5, 3], colsLabel: 'testing.dataPoints' },
   'bubble':         { cols: [5, 50, 15],  series: [1, 5, 3], colsLabel: 'testing.dataPoints' },
   'polar':          { cols: [3, 10, 5],  colsLabel: 'testing.segments' },
@@ -409,6 +448,63 @@ const sampleGenerators = {
         data: Array.from({ length: cols }, () => Math.floor(Math.random() * 60) + 15),
       }],
     };
+  },
+
+  pie: (cols) => {
+    const segNames = ['Segment A','Segment B','Segment C','Segment D','Segment E','Segment F',
+                      'Segment G','Segment H','Segment I','Segment J','Segment K','Segment L'];
+    const labels = cols <= segNames.length ? segNames.slice(0, cols) : Array.from({ length: cols }, (_, i) => `Seg ${i + 1}`);
+    return {
+      labels,
+      datasets: [{
+        data: Array.from({ length: labels.length }, () => Math.floor(Math.random() * 40) + 10),
+      }],
+    };
+  },
+
+  waterfall: (cols) => {
+    const stepNames = ['Start','Q1','Q2','Q3','Q4','Adj','Tax','Ops','Net','End','Other','Total'];
+    const labels = cols <= stepNames.length ? stepNames.slice(0, cols) : Array.from({ length: cols }, (_, i) => `Step ${i + 1}`);
+    // Build cumulative floating bars [base, top]
+    let running = 0;
+    const floatingData = labels.map((_, i) => {
+      const isLast = i === labels.length - 1;
+      if (isLast) return [0, running]; // total bar from 0
+      const delta = Math.floor(Math.random() * 40) - 10;
+      const base = running;
+      running += delta;
+      return [base, running];
+    });
+    const isPositive = floatingData.map(([b, t]) => t >= b);
+    return { labels, datasets: [{ label: 'Value', data: floatingData, isPositive }] };
+  },
+
+  'step-line': (cols, series) => {
+    const labels = makeTimeLabels(cols);
+    const datasets = [];
+    for (let s = 0; s < series; s++) {
+      let prev = Math.floor(Math.random() * 60) + 20;
+      datasets.push({
+        label: `Series ${s + 1}`,
+        data: Array.from({ length: cols }, () => {
+          if (Math.random() < 0.4) prev = Math.max(5, prev + (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 25) + 5));
+          return prev;
+        }),
+      });
+    }
+    return { labels, datasets };
+  },
+
+  heatmap: (cols, series) => {
+    const colLabels = Array.from({ length: cols }, (_, i) => `Col ${i + 1}`);
+    const rowLabels = Array.from({ length: series }, (_, i) => `Row ${i + 1}`);
+    const data = [];
+    rowLabels.forEach((row, r) => {
+      colLabels.forEach((col, c) => {
+        data.push({ x: col, y: row, v: Math.floor(Math.random() * 100) });
+      });
+    });
+    return { labels: colLabels, rowLabels, datasets: [{ label: 'Value', data }] };
   },
 };
 
@@ -772,6 +868,145 @@ const configBuilders = {
       },
     },
   }),
+
+  pie: (data, colors, opts) => ({
+    type: 'pie',
+    data: {
+      labels: data.labels,
+      datasets: [{
+        ...data.datasets[0],
+        backgroundColor: data.labels.map((_, i) => colors[i % colors.length] + 'CC'),
+        borderColor: data.labels.map((_, i) => colors[i % colors.length]),
+        borderWidth: 2,
+        hoverOffset: 10,
+      }],
+    },
+    options: {
+      ...opts,
+      scales: {},
+      plugins: {
+        ...opts.plugins,
+        legend: { ...opts.plugins.legend, display: true, position: 'right' },
+      },
+    },
+  }),
+
+  waterfall: (data, colors, opts, orientation) => {
+    const isHorizontal = orientation === 'horizontal';
+    const posColor = colors[0] + 'CC';
+    const negColor = colors[1] ? colors[1] + 'CC' : '#EF444480';
+    const totalColor = colors[2] ? colors[2] + 'CC' : colors[0] + '80';
+    const lastIdx = data.datasets[0].data.length - 1;
+    return {
+      type: 'bar',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: 'Value',
+          data: data.datasets[0].data,
+          backgroundColor: data.datasets[0].data.map(([b, t], i) => {
+            if (i === lastIdx) return totalColor;
+            return t >= b ? posColor : negColor;
+          }),
+          borderColor: data.datasets[0].data.map(([b, t], i) => {
+            if (i === lastIdx) return colors[2] || colors[0];
+            return t >= b ? colors[0] : (colors[1] || '#EF4444');
+          }),
+          borderWidth: 1.5,
+          borderRadius: 3,
+        }],
+      },
+      options: {
+        ...opts,
+        ...(isHorizontal ? { indexAxis: 'y' } : {}),
+        plugins: {
+          ...opts.plugins,
+          legend: { display: false },
+          tooltip: {
+            ...opts.plugins.tooltip,
+            callbacks: {
+              label: (ctx) => {
+                const [b, t] = ctx.raw;
+                const delta = t - b;
+                return `${delta >= 0 ? '+' : ''}${delta.toFixed(0)} (${t.toFixed(0)})`;
+              },
+            },
+          },
+        },
+      },
+    };
+  },
+
+  'step-line': (data, colors, opts) => ({
+    type: 'line',
+    data: {
+      labels: data.labels,
+      datasets: data.datasets.map((ds, i) => ({
+        ...ds,
+        borderColor: colors[i % colors.length],
+        backgroundColor: colors[i % colors.length] + '18',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: colors[i % colors.length],
+        stepped: true,
+        fill: false,
+      })),
+    },
+    options: opts,
+  }),
+
+  heatmap: (data, colors, opts) => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    // Build a two-stop gradient from the first palette color (light→saturated)
+    const base = colors[0] || '#4F46E5';
+    return {
+      type: 'matrix',
+      data: {
+        datasets: [{
+          label: 'Value',
+          data: data.datasets[0].data,
+          backgroundColor(ctx) {
+            const v = ctx.dataset.data[ctx.dataIndex]?.v ?? 0;
+            const alpha = (v / 100).toFixed(2);
+            return base + Math.round(parseFloat(alpha) * 255).toString(16).padStart(2, '0');
+          },
+          borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+          borderWidth: 2,
+          width: ({ chart }) => (chart.chartArea?.width  || 300) / (new Set(data.datasets[0].data.map(d => d.x)).size)  - 2,
+          height: ({ chart }) => (chart.chartArea?.height || 200) / (new Set(data.datasets[0].data.map(d => d.y)).size) - 2,
+        }],
+      },
+      options: {
+        ...opts,
+        scales: {
+          x: {
+            type: 'category',
+            labels: [...new Set(data.datasets[0].data.map(d => d.x))],
+            grid: { display: false },
+            ticks: { color: opts._textColor, font: { family: 'Inter', size: 10 } },
+          },
+          y: {
+            type: 'category',
+            labels: [...new Set(data.datasets[0].data.map(d => d.y))],
+            grid: { display: false },
+            ticks: { color: opts._textColor, font: { family: 'Inter', size: 10 } },
+          },
+        },
+        plugins: {
+          ...opts.plugins,
+          legend: { display: false },
+          tooltip: {
+            ...opts.plugins.tooltip,
+            callbacks: {
+              title: (items) => `${items[0]?.raw?.x} / ${items[0]?.raw?.y}`,
+              label: (ctx) => `Value: ${ctx.raw.v}`,
+            },
+          },
+        },
+      },
+    };
+  },
 };
 
 // ─── Public API ─────────────────────────────────────────────────────

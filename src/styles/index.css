@@ -117,17 +117,27 @@ body {
   color: var(--text);
   background: var(--bg-page);
   transition: background var(--transition), color var(--transition);
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 #app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+}
+
+#app-header,
+#app-footer {
+  flex-shrink: 0;
 }
 
 #app-main {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   animation: fadeIn 0.3s ease;
 }
 

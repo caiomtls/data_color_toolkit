@@ -14,6 +14,7 @@
   "dependencies": {
     "@sgratzl/chartjs-chart-boxplot": "^4.4.5",
     "chart.js": "^4.5.1",
+    "chartjs-chart-matrix": "^3.0.0",
     "chartjs-plugin-stacked100": "^1.7.1"
   }
 }

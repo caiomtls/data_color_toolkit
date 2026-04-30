@@ -3,17 +3,69 @@
  */
 
 import { t } from '../i18n.js';
+import { renderFooter } from '../components/footer.js';
 import { getState, setState, addColor, removeColor, updateColor, updateColorName, reorderColors, setColors } from '../store.js';
 import { CHART_TYPES, ORIENTATION_SUPPORTED, CHART_CONTROLS, getSampleData, renderChart } from '../charts/chart-factory.js';
 import { hexToRgb, hexToHsl, formatRgb, formatHsl, getContrastRatio, getWcagGrade, getTextColor, analyzeHarmony, autoAdjustColors } from '../utils/color.js';
 import { toPythonDict, toPythonList, toJson, toJsonArray, toCssVariables, toHexList } from '../utils/export.js';
 import { copyToClipboard } from '../utils/export.js';
-import { parseCSV, readFileAsText } from '../utils/csv.js';
+
 import { showToast } from '../components/toast.js';
 import { subscribe } from '../store.js';
 
 let currentChart = null;
 let unsubscribe = null;
+
+// ─── Global Tooltip Singleton ─────────────────────────────────────────────────
+// Uses event delegation so it works for any [data-tooltip] element,
+// regardless of how many times the toolbar re-renders. Never duplicates.
+(function initGlobalTooltip() {
+  let tip = null;
+  let hideTimer = null;
+
+  function getTip() {
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.style.cssText = [
+        'position:fixed', 'z-index:9999',
+        'background:#1a1a2e', 'color:#f0f0f0',
+        'border-radius:6px', 'padding:5px 10px',
+        'font-size:11px', 'font-weight:500', 'white-space:nowrap',
+        'pointer-events:none', 'letter-spacing:0.01em',
+        'box-shadow:0 4px 14px rgba(0,0,0,0.25)',
+        'opacity:0', 'transition:opacity 0.15s ease',
+        'display:none',
+      ].join(';');
+      document.body.appendChild(tip);
+    }
+    return tip;
+  }
+
+  document.addEventListener('mouseover', (e) => {
+    const el = e.target.closest('[data-tooltip]');
+    if (!el) return;
+    clearTimeout(hideTimer);
+    const t = getTip();
+    t.textContent = el.dataset.tooltip;
+    t.style.display = 'block';
+    t.style.opacity = '0';
+    const rect = el.getBoundingClientRect();
+    const w = t.offsetWidth;
+    const left = Math.max(8, Math.min(window.innerWidth - w - 8, rect.left + rect.width / 2 - w / 2));
+    t.style.left = `${left}px`;
+    t.style.top = `${rect.bottom + 7}px`;
+    requestAnimationFrame(() => { t.style.opacity = '1'; });
+  });
+
+  document.addEventListener('mouseout', (e) => {
+    const el = e.target.closest('[data-tooltip]');
+    if (!el) return;
+    hideTimer = setTimeout(() => {
+      if (tip) { tip.style.opacity = '0'; setTimeout(() => { if (tip) tip.style.display = 'none'; }, 150); }
+    }, 80);
+  });
+})();
+
 
 const PALETTES = {
   categorical: [
@@ -69,9 +121,8 @@ export function renderTesting(container, params = {}) {
     </div>
   `;
 
-  // Remove footer for testing page (full-height layout)
-  const footer = document.getElementById('app-footer');
-  if (footer) footer.innerHTML = '';
+  // Render footer
+  renderFooter();
 
   // Initialize
   requestAnimationFrame(() => {
@@ -251,6 +302,30 @@ function renderDataControls(chartType, state) {
 
 function renderColorItems(state) {
   const names = state.colorNames || state.colors.map((_, i) => `Series ${i + 1}`);
+
+  // Two colors are "too similar" for data-vis only when BOTH:
+  //   • their hue angle distance is < 20° (same color family), AND
+  //   • their lightness is within 12% (can't be told apart by brightness either).
+  // WCAG contrast ratio is intentionally NOT used here — it measures text-on-bg
+  // readability, not perceptual distinctiveness between two palette swatches.
+  function hueDist(a, b) {
+    const d = Math.abs(a - b) % 360;
+    return d > 180 ? 360 - d : d;
+  }
+
+  const lowSimilarIndices = new Set();
+  state.colors.forEach((c1, i) => {
+    state.colors.forEach((c2, j) => {
+      if (i >= j) return;
+      const h1 = hexToHsl(c1), h2 = hexToHsl(c2);
+      const tooClose = hueDist(h1.h, h2.h) < 20 && Math.abs(h1.l - h2.l) < 12;
+      if (tooClose) {
+        lowSimilarIndices.add(i);
+        lowSimilarIndices.add(j);
+      }
+    });
+  });
+
   return state.colors
     .map(
       (color, i) => `
@@ -263,6 +338,7 @@ function renderColorItems(state) {
         </div>
         <input type="text" class="color-name-input input" data-index="${i}" value="${escapeAttr(names[i])}" style="flex:1; margin:0 8px; font-size:12px; padding:4px 6px; height:auto; min-width:0;" />
         <span class="color-item-hex" style="font-size:11px; width:45px; text-align:right;">${color.toUpperCase()}</span>
+        ${lowSimilarIndices.has(i) ? `<span class="material-icons-outlined" style="font-size:14px;color:var(--warning);" title="${t('testing.lowContrastWarning')}">warning</span>` : ''}
         <button class="color-item-remove" data-index="${i}">
           <span class="material-icons-outlined">close</span>
         </button>
@@ -271,6 +347,7 @@ function renderColorItems(state) {
     )
     .join('');
 }
+
 
 function renderMainContent(state) {
   const activeTool = state.activeTool;
@@ -283,6 +360,27 @@ function renderMainContent(state) {
             <h3 style="font-size:14px;">${t(CHART_TYPES.find((c) => c.id === state.selectedChart)?.titleKey || 'chart.groupedBar.title')}</h3>
           </div>
           <div class="testing-toolbar-right">
+            <!-- Colorblind simulator -->
+            <div class="colorblind-group">
+              <span class="colorblind-label">${t('testing.visionLabel')}</span>
+              <div class="colorblind-toggle" id="colorblind-toggle">
+                <button class="colorblind-btn active" data-filter="none" data-tooltip="${t('testing.cbNormal')}">
+                  <span class="material-icons-outlined">visibility</span>
+                </button>
+                <button class="colorblind-btn" data-filter="protanopia" data-tooltip="${t('testing.cbProtanopia')}">
+                  <span class="cb-label">P</span>
+                </button>
+                <button class="colorblind-btn" data-filter="deuteranopia" data-tooltip="${t('testing.cbDeuteranopia')}">
+                  <span class="cb-label">D</span>
+                </button>
+                <button class="colorblind-btn" data-filter="tritanopia" data-tooltip="${t('testing.cbTritanopia')}">
+                  <span class="cb-label">T</span>
+                </button>
+                <button class="colorblind-btn" data-filter="achromatopsia" data-tooltip="${t('testing.cbAchromatopsia')}">
+                  <span class="material-icons-outlined" style="font-size:14px;">gradient</span>
+                </button>
+              </div>
+            </div>
             <button class="btn btn-ghost btn-icon" id="fullscreen-btn" data-tooltip="${t('testing.fullscreen')}">
               <span class="material-icons-outlined">fullscreen</span>
             </button>
@@ -495,6 +593,18 @@ function renderExport(colors) {
 
   return `
     <div class="export-panel">
+      <!-- Quick actions -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+
+        <button class="btn btn-secondary" id="copy-css-vars-btn" style="flex:1;gap:6px;justify-content:center;">
+          <span class="material-icons-outlined" style="font-size:16px;">content_copy</span>
+          ${t('export.copyCssVars')}
+        </button>
+        <button class="btn btn-secondary" id="copy-js-arr-btn" style="flex:1;gap:6px;justify-content:center;">
+          <span class="material-icons-outlined" style="font-size:16px;">javascript</span>
+          ${t('export.copyJsArray')}
+        </button>
+      </div>
       ${formats
         .map(
           (f) => `
@@ -587,6 +697,9 @@ function bindSidebarEvents() {
     }
     
     setState({ selectedChart: newChart, data: null, orientation: 'vertical', columns: newCols, series: newSeries });
+
+    // Sync colors to the new chart's active dimension
+    syncColorsToCount(newCols, newSeries);
     
     // Refresh just the orientation row so H/V toggle appears/disappears
     const orientRow = document.querySelector('.graph-select-row:last-of-type');
@@ -679,6 +792,8 @@ function bindSidebarEvents() {
     const { adjusted, report } = autoAdjustColors(colors);
     showAutoAdjustModal(colors, adjusted, report);
   });
+
+
 }
 
 function bindDataControlEvents() {
@@ -694,13 +809,16 @@ function bindDataControlEvents() {
     
     colRange?.addEventListener('input', (e) => {
       colInput.value = e.target.value;
-      setState({ columns: parseInt(e.target.value), data: null });
+      const newCols = parseInt(e.target.value);
+      setState({ columns: newCols, data: null });
+      syncColorsToCount(newCols, null);
     });
     colInput?.addEventListener('change', (e) => {
       const val = Math.min(max, Math.max(min, parseInt(e.target.value) || min));
       colRange.value = val;
       e.target.value = val;
       setState({ columns: val, data: null });
+      syncColorsToCount(val, null);
     });
   }
 
@@ -712,16 +830,77 @@ function bindDataControlEvents() {
     
     serRange?.addEventListener('input', (e) => {
       serInput.value = e.target.value;
-      setState({ series: parseInt(e.target.value), data: null });
+      const newSeries = parseInt(e.target.value);
+      setState({ series: newSeries, data: null });
+      syncColorsToCount(null, newSeries);
     });
     serInput?.addEventListener('change', (e) => {
       const val = Math.min(max, Math.max(min, parseInt(e.target.value) || min));
       serRange.value = val;
       e.target.value = val;
       setState({ series: val, data: null });
+      syncColorsToCount(null, val);
     });
   }
 
+}
+
+/**
+ * Sync the color list length to the number of series/columns.
+ * - chartType determines whether colors map to "series" or "columns" (e.g. pie/donut/polar)
+ * - Pass null for cols or series to use the value already in state.
+ */
+function syncColorsToCount(newCols, newSeries) {
+  const state = getState();
+  const chartType = state.selectedChart;
+  const controls = CHART_CONTROLS[chartType];
+
+  // Charts where colors map to the column/segment dimension (no series control)
+  const usesColumns = !controls?.series;
+  const targetCount = usesColumns
+    ? (newCols ?? state.columns)
+    : (newSeries ?? state.series);
+
+  const currentColors = state.colors;
+  const currentNames  = state.colorNames || currentColors.map((_, i) => `Series ${i + 1}`);
+  const diff = targetCount - currentColors.length;
+
+  if (diff === 0) return;
+
+  if (diff > 0) {
+    // Add colors — generate hues evenly spaced from the last existing color
+    const newColors = [...currentColors];
+    const newNames  = [...currentNames];
+    for (let i = 0; i < diff; i++) {
+      const idx = currentColors.length + i;
+      // Space the new hue 360/targetCount degrees away from the previous
+      const prevHex  = newColors[newColors.length - 1];
+      const prevH    = hexToHsl(prevHex).h;
+      const step     = Math.round(360 / targetCount);
+      const newH     = (prevH + step) % 360;
+      const newColor = hslToHexLocal(newH, 62, 56);
+      newColors.push(newColor);
+      newNames.push(`Series ${idx + 1}`);
+    }
+    setColors(newColors, newNames);
+  } else {
+    // Remove trailing colors
+    const newColors = currentColors.slice(0, targetCount);
+    const newNames  = currentNames.slice(0, targetCount);
+    setColors(newColors, newNames);
+  }
+}
+
+// Minimal HSL→Hex helper (avoids importing from color.js to prevent circular issues)
+function hslToHexLocal(h, s, l) {
+  s /= 100; l /= 100;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => {
+    const k = (n + h / 30) % 12;
+    const c = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * c).toString(16).padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
 }
 
 function bindOrientationEvents() {
@@ -817,6 +996,71 @@ function bindToolbarEvents() {
       container.requestFullscreen?.();
     }
   });
+
+  // Colorblind simulator
+  document.querySelectorAll('.colorblind-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.colorblind-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyColorblindFilter(btn.dataset.filter);
+    });
+  });
+}
+
+
+const CB_FILTERS = {
+  none: '',
+  protanopia:    'url(#cb-protanopia)',
+  deuteranopia:  'url(#cb-deuteranopia)',
+  tritanopia:    'url(#cb-tritanopia)',
+  achromatopsia: 'url(#cb-achromatopsia)',
+};
+
+function ensureCbSvgFilters() {
+  if (document.getElementById('cb-svg-filters')) return;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.id = 'cb-svg-filters';
+  svg.setAttribute('style', 'position:absolute;width:0;height:0;overflow:hidden;');
+  svg.innerHTML = `
+    <defs>
+      <filter id="cb-protanopia">
+        <feColorMatrix type="matrix" values="
+          0.567 0.433 0     0 0
+          0.558 0.442 0     0 0
+          0     0.242 0.758 0 0
+          0     0     0     1 0" />
+      </filter>
+      <filter id="cb-deuteranopia">
+        <feColorMatrix type="matrix" values="
+          0.625 0.375 0     0 0
+          0.7   0.3   0     0 0
+          0     0.3   0.7   0 0
+          0     0     0     1 0" />
+      </filter>
+      <filter id="cb-tritanopia">
+        <feColorMatrix type="matrix" values="
+          0.95  0.05  0     0 0
+          0     0.433 0.567 0 0
+          0     0.475 0.525 0 0
+          0     0     0     1 0" />
+      </filter>
+      <filter id="cb-achromatopsia">
+        <feColorMatrix type="matrix" values="
+          0.299 0.587 0.114 0 0
+          0.299 0.587 0.114 0 0
+          0.299 0.587 0.114 0 0
+          0     0     0     1 0" />
+      </filter>
+    </defs>
+  `;
+  document.body.appendChild(svg);
+}
+
+function applyColorblindFilter(filterName) {
+  ensureCbSvgFilters();
+  const preview = document.getElementById('preview-container');
+  if (!preview) return;
+  preview.style.filter = CB_FILTERS[filterName] || '';
 }
 
 function bindExportEvents(state) {
@@ -833,7 +1077,26 @@ function bindExportEvents(state) {
       }
     });
   });
+
+
+  // Copy CSS vars
+  document.getElementById('copy-css-vars-btn')?.addEventListener('click', async () => {
+    try {
+      await copyToClipboard(toCssVariables(state.colors));
+      showToast(t('export.copied'), 'success');
+    } catch { showToast('Failed to copy', 'error'); }
+  });
+
+  // Copy JS array
+  document.getElementById('copy-js-arr-btn')?.addEventListener('click', async () => {
+    const arr = `const palette = [${state.colors.map(c => `'${c}'`).join(', ')}];`;
+    try {
+      await copyToClipboard(arr);
+      showToast(t('export.copied'), 'success');
+    } catch { showToast('Failed to copy', 'error'); }
+  });
 }
+
 
 // ─── Auto-Adjust Modal ────────────────────────────────────────────────────────
 function showAutoAdjustModal(original, adjusted, report) {

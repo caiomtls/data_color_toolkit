@@ -13,7 +13,7 @@ const translations = {
     // Home
     'home.title': 'Data Color',
     'home.titleAccent': 'Toolkit',
-    'home.subtitle': 'A free, open-source tool for testing and refining color palettes for data visualization. Achieve clinical precision in your visual storytelling.',
+    'home.subtitle': 'A free, open-source tool for testing and refining color palettes for data visualization.',
     'home.library': 'Library',
     'home.libraryDesc': 'Explore our gallery of common chart types. Choose a template to start testing.',
     'home.libraryAction': 'Browse Gallery',
@@ -80,6 +80,16 @@ const translations = {
     'chart.polar.title': 'Polar Area Chart',
     'chart.polar.desc': 'Display magnitude on radial wedges. Tests color distinction in angular segment layouts.',
 
+    // Charts — New additions
+    'chart.pie.title': 'Pie Chart',
+    'chart.pie.desc': 'Classic part-to-whole view. Tests how palette colors read as slices without gaps.',
+    'chart.waterfall.title': 'Waterfall Chart',
+    'chart.waterfall.desc': 'Show cumulative effect of sequential values. Tests color contrast between gains, losses and totals.',
+    'chart.stepLine.title': 'Step Line Chart',
+    'chart.stepLine.desc': 'Visualize data that changes discretely at set points. Tests color readability in staircase transitions.',
+    'chart.heatmap.title': 'Heatmap',
+    'chart.heatmap.desc': 'Show data density across a grid using color intensity. Tests the perceptual range of a single palette color.',
+
     // Testing
     'testing.graphSelection': 'Graph Selection',
     'testing.graphData': 'Graph Data',
@@ -92,6 +102,8 @@ const translations = {
     'testing.segments': 'Segments',
     'testing.groups': 'Groups',
     'testing.dataPoints': 'Data Points',
+    'testing.steps': 'Steps',
+    'testing.rows': 'Rows',
     'testing.dataGeneratedInternally': 'Data for this chart is generated dynamically without controls.',
     'testing.importCsv': 'Import CSV',
     'testing.addColor': 'Add Color',
@@ -102,14 +114,33 @@ const translations = {
     'testing.fullscreen': 'Fullscreen',
     'testing.zoom': 'Zoom',
     'testing.compareMultiple': 'Compare multiple',
+    'testing.lowContrastWarning': 'Very similar to another color — may be hard to distinguish',
+    'testing.cbNormal': 'Normal vision',
+    'testing.cbProtanopia': 'Protanopia (red-blind)',
+    'testing.cbDeuteranopia': 'Deuteranopia (green-blind)',
+    'testing.cbTritanopia': 'Tritanopia (blue-blind)',
+    'testing.cbAchromatopsia': 'Achromatopsia (grayscale)',
+    'testing.visionLabel': 'Vision:',
 
-    // Export
     'export.python': 'Python Dict',
     'export.json': 'JSON',
     'export.css': 'CSS Variables',
     'export.hex': 'HEX List',
     'export.copy': 'Copy',
     'export.copied': 'Copied!',
+    'export.downloadPng': 'Download PNG',
+    'export.copyCssVars': 'CSS Vars',
+    'export.copyJsArray': 'JS Array',
+    'export.noChart': 'Switch to Preview first to export the chart.',
+    'export.pngDownloaded': 'Chart downloaded as PNG!',
+
+    // CSV Import
+    'csv.title': 'Import CSV Data',
+    'csv.desc': 'Paste CSV data with a header row. The first column is the label, the remaining columns are the series.',
+    'csv.apply': 'Apply Data',
+    'csv.success': 'Data imported from CSV!',
+    'csv.errorEmpty': 'Please paste some CSV data first.',
+    'csv.errorParse': 'Could not parse CSV. Check the format and try again.',
 
     // Footer
     'footer.text': 'Personal and free project · Open Source',
@@ -147,14 +178,14 @@ const translations = {
     'autoAdjust.cancel': 'Cancel',
     'autoAdjust.apply': 'Apply',
     'autoAdjust.success': 'Colors auto-adjusted!',
-    'autoAdjust.rule.hue': 'Hue redistributed',
-    'autoAdjust.rule.hueDesc': 'Uniform perceptual spacing across the color wheel',
-    'autoAdjust.rule.sat': 'Saturation 55–75%',
-    'autoAdjust.rule.satDesc': 'Avoids washed-out or overly vivid colors',
-    'autoAdjust.rule.light': 'Lightness 42–62%',
-    'autoAdjust.rule.lightDesc': 'Readable on both light and dark backgrounds',
-    'autoAdjust.rule.alt': 'Alternating L ±8%',
-    'autoAdjust.rule.altDesc': 'Color-independent distinction (colorblind-friendly)',
+    'autoAdjust.rule.hue': 'Hue assignment',
+    'autoAdjust.rule.hueDesc': 'Greedy bipartite matching assigns each color to the nearest even-spaced hue slot, preserving color families',
+    'autoAdjust.rule.sat': 'Saturation 58–70%',
+    'autoAdjust.rule.satDesc': 'Vivid enough to read on any background, not so vivid it causes vibration',
+    'autoAdjust.rule.light': 'Theme-aware lightness',
+    'autoAdjust.rule.lightDesc': 'Light mode: L 42–58%. Dark mode: L 55–72%. Guarantees readability on both backgrounds.',
+    'autoAdjust.rule.alt': 'Accessibility stagger ±6%',
+    'autoAdjust.rule.altDesc': 'Alternating lightness offset keeps adjacent colors distinguishable even in grayscale',
   },
 
   'pt-br': {
@@ -166,7 +197,7 @@ const translations = {
     // Home
     'home.title': 'Data Color',
     'home.titleAccent': 'Toolkit',
-    'home.subtitle': 'Uma ferramenta gratuita e open-source para testar e refinar paletas de cores para visualização de dados. Precisão clínica na sua narrativa visual.',
+    'home.subtitle': 'Uma ferramenta gratuita e open-source para testar e refinar paletas de cores para visualização de dados.',
     'home.library': 'Biblioteca',
     'home.libraryDesc': 'Explore nossa galeria de tipos de gráficos. Escolha um template para começar.',
     'home.libraryAction': 'Ver Galeria',
@@ -233,6 +264,16 @@ const translations = {
     'chart.polar.title': 'Área Polar',
     'chart.polar.desc': 'Exiba magnitude em fatias radiais. Testa distinção de cores em segmentos angulares.',
 
+    // Gráficos — Novas adições
+    'chart.pie.title': 'Gráfico de Pizza',
+    'chart.pie.desc': 'Visão clássica de parte-para-todo. Testa como as cores da paleta aparecem em fatias sem espaços.',
+    'chart.waterfall.title': 'Gráfico em Cascata',
+    'chart.waterfall.desc': 'Mostra o efeito cumulativo de valores sequenciais. Testa contraste de cores entre ganhos, perdas e totais.',
+    'chart.stepLine.title': 'Linha em Degraus',
+    'chart.stepLine.desc': 'Visualize dados que mudam de forma discreta em pontos fixos. Testa legibilidade de cores em transições em escada.',
+    'chart.heatmap.title': 'Mapa de Calor',
+    'chart.heatmap.desc': 'Mostra densidade de dados numa grade usando intensidade de cor. Testa a amplitude perceptual de uma única cor da paleta.',
+
     // Testing
     'testing.graphSelection': 'Seleção de Gráfico',
     'testing.graphData': 'Dados do Gráfico',
@@ -244,7 +285,9 @@ const translations = {
     'testing.profiles': 'Perfis',
     'testing.segments': 'Segmentos',
     'testing.groups': 'Grupos',
-    'testing.dataPoints': 'Pontos',
+    'testing.dataPoints': 'Pontos de Dados',
+    'testing.steps': 'Etapas',
+    'testing.rows': 'Linhas',
     'testing.dataGeneratedInternally': 'Os dados deste gráfico são gerados dinamicamente sem controles.',
     'testing.importCsv': 'Importar CSV',
     'testing.addColor': 'Adicionar Cor',
@@ -255,6 +298,13 @@ const translations = {
     'testing.fullscreen': 'Tela Cheia',
     'testing.zoom': 'Zoom',
     'testing.compareMultiple': 'Comparar múltiplos',
+    'testing.lowContrastWarning': 'Muito similar a outra cor — pode ser difícil de distinguir',
+    'testing.cbNormal': 'Visão normal',
+    'testing.cbProtanopia': 'Protanopia (cego para vermelho)',
+    'testing.cbDeuteranopia': 'Deuteranopia (cego para verde)',
+    'testing.cbTritanopia': 'Tritanopia (cego para azul)',
+    'testing.cbAchromatopsia': 'Acromasia (escala de cinza)',
+    'testing.visionLabel': 'Visão:',
 
     // Export
     'export.python': 'Dict Python',
@@ -263,6 +313,19 @@ const translations = {
     'export.hex': 'Lista HEX',
     'export.copy': 'Copiar',
     'export.copied': 'Copiado!',
+    'export.downloadPng': 'Baixar PNG',
+    'export.copyCssVars': 'Vars CSS',
+    'export.copyJsArray': 'Array JS',
+    'export.noChart': 'Volte para o Preview primeiro para exportar o gráfico.',
+    'export.pngDownloaded': 'Gráfico baixado como PNG!',
+
+    // CSV Import
+    'csv.title': 'Importar Dados CSV',
+    'csv.desc': 'Cole dados CSV com uma linha de cabeçalho. A primeira coluna é o rótulo; as demais são as séries.',
+    'csv.apply': 'Aplicar Dados',
+    'csv.success': 'Dados importados via CSV!',
+    'csv.errorEmpty': 'Cole dados CSV antes de continuar.',
+    'csv.errorParse': 'Não foi possível ler o CSV. Verifique o formato e tente novamente.',
 
     // Footer
     'footer.text': 'Projeto pessoal e gratuito · Open Source',
@@ -300,14 +363,14 @@ const translations = {
     'autoAdjust.cancel': 'Cancelar',
     'autoAdjust.apply': 'Aplicar',
     'autoAdjust.success': 'Cores ajustadas automaticamente!',
-    'autoAdjust.rule.hue': 'Matiz redistribuído',
-    'autoAdjust.rule.hueDesc': 'Espaçamento perceptual uniforme no círculo cromático',
-    'autoAdjust.rule.sat': 'Saturação 55–75%',
-    'autoAdjust.rule.satDesc': 'Evita cores acinzentadas ou saturadas demais',
-    'autoAdjust.rule.light': 'Luminosidade 42–62%',
-    'autoAdjust.rule.lightDesc': 'Legível em fundos claros e escuros',
-    'autoAdjust.rule.alt': 'Alternância de L ±8%',
-    'autoAdjust.rule.altDesc': 'Distinção sem cor (daltônico-friendly)',
+    'autoAdjust.rule.hue': 'Atribuição de matiz',
+    'autoAdjust.rule.hueDesc': 'Correspondência gulosa atribui cada cor ao slot mais próximo de espaçamento uniforme, preservando famílias de cores',
+    'autoAdjust.rule.sat': 'Saturação 58–70%',
+    'autoAdjust.rule.satDesc': 'Viva o suficiente para qualquer fundo, sem causar vibração visual',
+    'autoAdjust.rule.light': 'Luminosidade adaptada ao tema',
+    'autoAdjust.rule.lightDesc': 'Modo claro: L 42–58%. Modo escuro: L 55–72%. Garante legibilidade em ambos os fundos.',
+    'autoAdjust.rule.alt': 'Escalonamento de acessibilidade ±6%',
+    'autoAdjust.rule.altDesc': 'Alternação de luminosidade mantém cores adjacentes distinguíveis mesmo em escala de cinza',
   },
 };
 

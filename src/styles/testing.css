@@ -4,7 +4,7 @@
 
 .testing {
   display: flex;
-  height: calc(100vh - var(--header-height));
+  flex: 1;
   overflow: hidden;
 }
 
@@ -323,6 +323,68 @@
   align-items: center;
   gap: var(--space-2);
 }
+
+/* === Colorblind Simulator === */
+.colorblind-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 10px;
+  background: var(--surface-raised, rgba(255,255,255,0.04));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-right: var(--space-2);
+}
+
+.colorblind-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.colorblind-toggle {
+  display: flex;
+  gap: 2px;
+}
+
+.colorblind-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font);
+  position: relative;
+}
+.colorblind-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+  border-color: var(--border);
+}
+.colorblind-btn.active {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.colorblind-btn .material-icons-outlined,
+.colorblind-btn .cb-label {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Tooltip handled via JS (see bindToolbarEvents) — appended to body to avoid overflow clipping */
+
 
 /* === Chart Preview Area === */
 .testing-preview {

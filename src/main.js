@@ -13,6 +13,7 @@ import './styles/testing.css';
 // Core modules
 import { registerRoutes, startRouter } from './router.js';
 import { renderHeader, initTheme } from './components/header.js';
+import { renderFooter } from './components/footer.js';
 import { renderHome } from './pages/home.js';
 import { renderLibrary } from './pages/library.js';
 import { renderTesting } from './pages/testing.js';
@@ -43,6 +44,7 @@ registerRoutes({
         <a href="#/" class="btn btn-primary" style="margin-top:24px;">Go Home</a>
       </div>
     `;
+    renderFooter();
   },
 });
 
