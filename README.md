@@ -14,10 +14,16 @@ Uma ferramenta client-side para testar e refinar paletas de cores em diferentes 
 Galeria com 13+ tipos de gráfico — barras agrupadas, empilhadas, 100%, linhas múltiplas, área, dispersão, bolhas, box plot, slopegraph, donut, polar, radar e misto (barra + linha). Cada template abre diretamente na ferramenta de teste com os dados configurados.
 
 **Teste de Cores**
-Aplique sua paleta em gráficos interativos renderizados com Chart.js. Controle o número de colunas e séries em tempo real. Suporte a orientação vertical/horizontal nos gráficos de barras.
+Aplique sua paleta em gráficos interativos renderizados com Chart.js. Controle o número de colunas e séries em tempo real — a lista de cores sincroniza automaticamente com a contagem de séries, expandindo ou reduzindo conforme necessário. Suporte a orientação vertical/horizontal nos gráficos de barras.
+
+**Simulador de Daltonismo**
+Teste sua paleta sob quatro simulações de visão diretamente no preview do gráfico: Protanopia, Deuteranopia, Tritanopia e Acromasia. Implementado com filtros SVG `feColorMatrix` sem dependências externas.
 
 **Sequência de Cores**
 Monte sua paleta manualmente: adicione, remova, reordene por drag & drop e edite com color picker nativo. Importe paletas prontas de um catálogo com 20+ opções categorizadas (categorical, sequential, diverging) — inclui Viridis, Plasma, Tableau 10, ColorBrewer, Wong (acessível) e outras.
+
+**Alerta de Similaridade**
+Aviso automático quando duas cores da paleta são perceptualmente semelhantes — usa distância de matiz HSL e diferença de luminosidade em vez de ratio WCAG (que é adequado para texto, não para distinguir séries de dados).
 
 **Auto Ajuste**
 Ajusta automaticamente a paleta ativa seguindo boas práticas de visualização de dados: redistribuição de matiz, normalização de saturação (55–75%), normalização de luminosidade (42–62%) e alternância de L para distinção sem dependência de cor. Exibe um preview comparativo antes de aplicar.
@@ -99,7 +105,7 @@ O output vai para `dist/`. O `vite.config.js` já está configurado com o base p
 │   │   └── testing.css
 │   └── utils/
 │       ├── color.js            # Conversão HEX/RGB/HSL, contraste WCAG, auto-ajuste
-│       ├── csv.js              # Parser de CSV
+│       ├── csv.js              # Parser de CSV (reservado para uso futuro)
 │       └── export.js           # Formatadores de exportação
 └── .github/
     └── workflows/
@@ -132,10 +138,16 @@ A client-side tool for testing and refining color palettes across different char
 Gallery with 13+ chart types — grouped, stacked, 100% stacked bar, multi-line, area, scatter, bubble, box plot, slopegraph, donut, polar, radar, and mixed (bar + line). Each template opens directly in the testing tool.
 
 **Color Testing**
-Apply your palette to interactive Chart.js charts. Control columns and series count in real time. Vertical/horizontal orientation support for bar charts.
+Apply your palette to interactive Chart.js charts. Control columns and series count in real time — the color list automatically syncs with the series count, expanding or trimming as needed. Vertical/horizontal orientation support for bar charts.
+
+**Colorblind Simulator**
+Test your palette under four vision simulations directly in the chart preview: Protanopia, Deuteranopia, Tritanopia, and Achromatopsia. Implemented with SVG `feColorMatrix` filters — no external dependencies.
 
 **Color Sequence**
 Build your palette manually: add, remove, reorder via drag & drop, and edit with a native color picker. Import from a catalog of 20+ palettes across three categories (categorical, sequential, diverging) — includes Viridis, Plasma, Tableau 10, ColorBrewer, Wong (accessible) and others.
+
+**Similarity Warning**
+Automatic warning when two palette colors are perceptually similar — uses HSL hue distance and lightness difference rather than WCAG contrast ratio (which is designed for text legibility, not chart series distinction).
 
 **Auto Adjust**
 Automatically adjusts the active palette following data-vis best practices: hue redistribution, saturation normalization (55–75%), lightness normalization (42–62%), and lightness alternation for color-independent distinction. Shows a before/after preview before applying.

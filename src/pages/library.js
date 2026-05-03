@@ -107,7 +107,7 @@ function renderCards(colors) {
     return `
       <div class="empty-state" style="grid-column: 1/-1;">
         <span class="material-icons-outlined">search_off</span>
-        <p>No charts match your criteria.</p>
+        <p>${t('library.noResults')}</p>
       </div>
     `;
   }

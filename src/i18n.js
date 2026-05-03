@@ -37,6 +37,7 @@ const translations = {
     'library.correlation': 'Correlation',
     'library.partToWhole': 'Part-to-Whole',
     'library.magnitude': 'Magnitude',
+    'library.noResults': 'No charts match your search.',
 
     // Charts — Comparison
     'chart.groupedBar.title': 'Grouped Bar Chart',
@@ -143,7 +144,7 @@ const translations = {
     'csv.errorParse': 'Could not parse CSV. Check the format and try again.',
 
     // Footer
-    'footer.text': 'Personal and free project · Open Source',
+    'footer.text': 'Open Source · Free to use and contribute',
     'footer.docs': 'Documentation',
     'footer.changelog': 'Changelog',
     'footer.github': 'GitHub',
@@ -221,6 +222,7 @@ const translations = {
     'library.correlation': 'Correlação',
     'library.partToWhole': 'Parte do Todo',
     'library.magnitude': 'Magnitude',
+    'library.noResults': 'Nenhum gráfico encontrado para essa busca.',
 
     // Charts — Comparação
     'chart.groupedBar.title': 'Barras Agrupadas',
@@ -328,7 +330,7 @@ const translations = {
     'csv.errorParse': 'Não foi possível ler o CSV. Verifique o formato e tente novamente.',
 
     // Footer
-    'footer.text': 'Projeto pessoal e gratuito · Open Source',
+    'footer.text': 'Open Source · Gratuito para usar e contribuir',
     'footer.docs': 'Documentação',
     'footer.changelog': 'Changelog',
     'footer.github': 'GitHub',
